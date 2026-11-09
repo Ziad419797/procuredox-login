@@ -14,17 +14,33 @@ public class LoginController {
     public String login(@RequestParam(required = false) String error,
                         Authentication authentication,
                         CsrfToken csrfToken,
-                        Model model) {
+                        Model model,
+                        @RequestParam(required = false) String registered,
+                        @RequestParam(required = false) String otpfailed)  {
 
         if (authentication != null && authentication.isAuthenticated()) {
-            return "redirect:/home";
+            boolean full = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+            return full ? "redirect:/home" : "redirect:/otp";
         }
 
         if (error != null) {
             model.addAttribute("error", "Invalid email or password");
         }
+
+        if (registered != null) {
+            model.addAttribute("success", "Account created. Please sign in.");
+        }
+
+        if (otpfailed != null) {
+            model.addAttribute("error", "Verification failed. Please sign in again.");
+        }
+
+
         model.addAttribute("csrfToken", csrfToken);
         return "login";
+
+
     }
 
 
@@ -34,5 +50,6 @@ public class LoginController {
         model.addAttribute("csrfToken", csrfToken);
         return "home";
     }
+
 
 }

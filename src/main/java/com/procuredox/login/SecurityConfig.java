@@ -1,5 +1,6 @@
 package com.procuredox.login;
 
+import com.procuredox.login.otp.OtpLoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,17 +14,19 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, OtpLoginSuccessHandler otpHandler) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/login", "/signup", "/css/**").permitAll()
+                        .requestMatchers("/otp").hasAuthority("PRE_AUTH")
+                        .anyRequest().hasRole("USER"))
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler(otpHandler)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout"));
+
         return http.build();
     }
 

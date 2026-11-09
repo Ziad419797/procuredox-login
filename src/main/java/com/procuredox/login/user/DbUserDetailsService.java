@@ -22,7 +22,7 @@ public class DbUserDetailsService implements UserDetailsService {
 
         return User.withUsername(user.getEmail())
                 .password(user.getPasswordHash())
-                .roles("USER")
+                .authorities("PRE_AUTH")
                 .disabled(!user.isEnabled())
                 .build();
     }
